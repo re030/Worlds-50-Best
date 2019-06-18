@@ -1,1 +1,1 @@
-Dies ist unser Proejekt. Es geht um Köche und restaurants. 
+Unser Projekt analysiert die Beziehung verschiedener weltbekannter Köche und Nominierungslisten wie der Worlds 50 Best. Hierbei vergleichen wir, wie oft die Köche auf welchen Listen erscheinen und wie sie dort bewertet werden. 
