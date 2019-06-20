@@ -1,4 +1,13 @@
 ---
+title: "R Notebook"
+output: html_notebook
+---
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+
+Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*. 
+
+---
   title: "Worlds 50 Best Notebook"
 output: html_notebook
 ---
@@ -9,25 +18,21 @@ output: html_notebook
 
 ```{r Köche Netzwerk einlesen mit Listen}
 library("igraph")  
+library("igraphdata")
 # Read Edgelist
 edges <- read.csv("https://raw.githubusercontent.com/re030/Worlds-50-Best/4b2469bf5dedf256b299544f8020f22792dd1e68/edges.csv", header=T, as.is=T, sep = ",") # liest die Edgelist ein
 nodes <- read.csv("https://raw.githubusercontent.com/re030/Worlds-50-Best/master/nodes.csv", header=T, as.is=T, sep=",") #liest die Nodelist ein
 matrix <- as.matrix(edges) # erstellt eine Matrix aus den Edges 
 koch <- graph_from_data_frame(d=edges, directed=FALSE) # erstellt den Graph mit dem Namen koch
 
-plot(koch) # zeichnet den Graphen
+coords <- layout_nicely(koch)*0.9
+
+plot(koch,
+     layout=coords, rescale=FALSE, ylim=c(-5,10),xlim=c(-5,5), asp = 0,
+     main="Netzwerk der besten Köche der Welt", 
+     sub="Nominierungen in verschiedenen Listen",
+     vertex.size=20,
+     vertex.frame.color=NA,
+     vertex.label.color="black",
+     vertex.color="lightblue") # zeichnet den Graphen
 ```
-
-```{r}
-```
----
-  
-  This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
-
-Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Cmd+Shift+Enter*. 
-
-Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Cmd+Option+I*.
-
-When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Cmd+Shift+K* to preview the HTML file). 
-
-The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
