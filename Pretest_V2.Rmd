@@ -1,0 +1,63 @@
+---
+  title: "R Notebook"
+output: html_notebook
+---
+  title: "Tutorium Netzwerke SS19 Birka Kallenbach"
+output: html_notebook
+---
+  
+  Dies ist das R Notebook zum Tutorium 
+Im Notebook führt man eine Zeile aus mit Cmd+Enter, einen Chunk mit Cmd+Shift+Enter
+
+*** 1. Termin - 26. März 2019  * 
+  würde 
+RStudio wird mit Paketen genutzt, wir brauchen die Pakete igraph und igraphdata. Installieren muss man sie einmal, laden muss man sie jedes Mal neu, wenn man RStudio öffnet. 
+
+Pakete installieren: unten rechts "Packages" --> "Install" --> Namen des Pakets eingeben und "Install dependencies" anhaken
+
+Pakete lädt man so: 
+  ```{r Pakete laden}
+library("igraph") #pakete laden 
+library("igraphdata")
+```
+
+Analog benennen wir so auch Graphen (aber erst nächste Woche)
+
+*** 2. Termin - 2. April 2019 * 
+  
+  Wir setzen unser Working directory so, dass wir alle R Dateien in einem Ordnet haben und darauf zugreifen können. 
+Das geht so: Session --> Set working Directory --> Choose Directory 
+
+
+
+*** 3. Termin - 9. April 2019  *
+  Das letzte Mal haben wir Netzwerke mit graph_from_literal erstellt. Weil das aber ab 10 Kanten unübersichtlich wird, nutzen wir jetzt Edge-und Nodelist. In der Nodelist stehen alle Informationen zu den Knoten. Das sind mindestens ID und Name, dazu können aber noch viele andere Attribute kommen, wie zum Beispiel Alter, Geschlecht, Migrationshintergrund etc. 
+
+Wir lesen mal das Harry Potter Netzwerk lokal ein. Dafür müssen die Listen in eurem Working-Directory liegen (vergessen welches das ist? --> getwd() eingeben)
+
+
+```{r Harry Potter Netzwerk einlesen mit Listen}
+library("igraph")  
+# die Listen liegen hier: https://github.com/birx/Tutorium
+# Read Edgelist
+edges <- read.csv("https://raw.githubusercontent.com/re030/Worlds-50-Best/4b2469bf5dedf256b299544f8020f22792dd1e68/edges.csv", header=T, as.is=T, sep = ",") # liest die Edgelist ein
+nodes <- read.csv("https://raw.githubusercontent.com/re030/Worlds-50-Best/master/nodes.csv", header=T, as.is=T, sep=",") #liest die Nodelist ein
+matrix <- as.matrix(edges) # erstellt eine Matrix aus den Edges 
+koch <- graph_from_data_frame(d=edges, directed=FALSE) # erstellt den Graph mit dem Namen koch
+
+plot(koch) # zeichnet den Graphen
+```
+
+```{r}
+```
+---
+  
+  This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+
+Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Cmd+Shift+Enter*. 
+
+Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Cmd+Option+I*.
+
+When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Cmd+Shift+K* to preview the HTML file). 
+
+The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
