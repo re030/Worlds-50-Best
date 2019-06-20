@@ -20,8 +20,8 @@ output: html_notebook
 library("igraph")  
 library("igraphdata")
 # Read Edgelist
-edges <- read.csv("https://raw.githubusercontent.com/re030/Worlds-50-Best/master/226305_Projekt_World_Edgelist.csv.csv", header=T, as.is=T, sep = ",") # liest die Edgelist ein
-nodes <- read.csv("https://raw.githubusercontent.com/re030/Worlds-50-Best/master/226305_Projekt_World_Nodelist.csv.csv", header=T, as.is=T, sep=",") #liest die Nodelist ein
+edges <- read.csv("https://raw.githubusercontent.com/re030/Worlds-50-Best/master/226305_Projekt_World_Edgelist.csv", header=T, as.is=T, sep = ",") # liest die Edgelist ein
+nodes <- read.csv("https://raw.githubusercontent.com/re030/Worlds-50-Best/master/226305_Projekt_World_Nodelist.csv", header=T, as.is=T, sep=",") #liest die Nodelist ein
 matrix <- as.matrix(edges) # erstellt eine Matrix aus den Edges 
 koch <- graph_from_data_frame(d=edges, directed=FALSE) # erstellt den Graph mit dem Namen koch
 
