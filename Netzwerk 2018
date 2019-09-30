@@ -1,0 +1,30 @@
+
+```{r}
+
+library(igraph)
+# load raw network data ----
+A <- utils::read.table(file = 'Edgelist_2018.csv',
+                header = TRUE, sep = ',', quote = '', stringsAsFactors = FALSE)
+
+# create network ----
+g <- graph_from_data_frame(A,directed = FALSE)
+
+# load raw attribute data ----
+attrs <- utils::read.table(file = 'NOdelist_2018.csv',
+                    header = TRUE, sep = ',', quote = '', stringsAsFactors = FALSE)
+
+# add attributes to network ----
+vnames <- get.vertex.attribute(g,'name')
+identCol <- which(apply(attrs,2,function(x) all(x%in%vnames)))[1]
+anames <- attrs[,identCol]
+attrs <- attrs[,-identCol]
+
+perm <- match(vnames,anames)
+for(attr in names(attr)){
+   g <- set_vertex_attr(g,name = attr,value = attr[[attr]][perm])
+}
+
+g 
+
+plot(g)
+```
