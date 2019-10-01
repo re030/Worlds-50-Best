@@ -1,0 +1,106 @@
+---
+title: "R Notebook"
+output: html_notebook
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r erstellt igraph objekt aus github}
+
+edges <- read.csv("https://raw.githubusercontent.com/re030/Worlds-50-Best/master/30.9.19_Netzwerk%20-%20Edgelist%202017.csv", header=T, as.is=T)
+
+nodes <- read.csv("https://raw.githubusercontent.com/re030/Worlds-50-Best/master/30.9.19_Netzwerk%20-%20Nodelist_2017.csv", header=T, as.is=T)
+
+edgematrix <-as.matrix(edges)
+chef <- graph_from_data_frame(d=edgematrix, vertices=nodes, directed=F)
+chef
+colrs <- c("lightblue", "pink")
+geschlecht <- c("1", "2")
+V(chef)$color <- colrs[V(chef)$geschlecht]
+
+plot(chef, vertex.label=V(chef)$name,
+     col=colrs,
+     main="Gesamtnetzwerk der besten Köche weltweit")
+
+#Egonetzwerk von Ferran Adria erstellen
+chef
+list.vertex.attributes(chef)
+vertex.attributes(chef)$name
+
+#Egonetzwerk von Ferran Adria mit 2 Verbindungen, mit Bestenlisten, mit Outdegrees angezeigt
+egofead <- make_ego_graph(chef, order=2, c("Ferran Adrià"))
+plot(egofead[[1]], 
+     edge.arrow.size=.3, 
+     vertex.size=degree(chef, mode="out")/2,
+     main="Mastermind Ferran Adrià")
+
+
+#Jetzt wollen wir die Listen entfernen
+egofead
+list.vertex.attributes(chef)$type
+
+
+egofeadohneliste <- delete_vertices(egofead, V(egofead)[type == "4"])
+plot(egofeadohneliste)
+
+chefohneliste <- delete_vertices(chef, V(chef)[type == "4"])
+plot(chefohneliste)
+egofead <- make_ego_graph(chefohneliste, order=2, c("Ferran Adrià"))
+plot(egofead[[1]], 
+     edge.arrow.size=.3, 
+     vertex.size=degree(chefohneliste, mode="out")/2,
+     main="Ferran Adrià ohne Liste")
+
+
+#Netzwerk nach 3 Michelinsternen filtern
+m10 <- delete_vertices(chef, V(chef)[michelinstern == "1000"])
+m10
+vertex.attributes(m10)$michelinstern
+plot(m10)
+
+#alle Köche mit 0 Michelinsternen gelöscht
+m13<- delete_vertices(m10, V(m10)[michelinstern == "0"])
+m13
+vertex.attributes(m13)$michelinstern
+plot(m13)
+
+# alle Köche mit weniger als 3 Sternen gelöscht
+mplus3<- delete_vertices(m13, V(m13)[michelinstern < "3"])
+mplus3
+vertex.attributes(mplus3)$michelinstern
+plot(mplus3)
+
+# jetzt haben wir alle 3 Sterne Köche
+
+#alle degrees anzeigen lassen
+mplus3degree <- degree(mplus3)
+mplus3degree
+
+#alle Köche ohne Verbindungen gelöscht
+mplus3_all <- delete_vertices(mplus3, V(mplus3)[(mplus3degree) == "0"])
+mplus3_all
+plot(mplus3_all)
+#Ergebnis: alle Köche mit 3 Michelinsternen und Verbindungen zueinander
+
+#weibliche Köche herausfiltern
+#erst die ohne Geschlecht löschen
+vertex.attributes(chef)$geschlecht
+chef
+fchef <- delete_vertices(chef, V(chef)[geschlecht == "1000"])
+plot(fchef)
+#jetzt die Männer herauslöschen
+fchefzwei <- delete_vertices(fchef, V(fchef)[(geschlecht) == "1"])
+plot(fchefzwei)
+
+
+#französische Köche herausfinden und mit Farben hinterlegen
+chef
+frenchchef <- delete_vertices(chef, V(chef)[herkunftsland != "15"])
+colrs <- c("lightblue", "pink")
+geschlecht <- c("1", "2")
+V(frenchchef)$color <- colrs[V(frenchchef)$geschlecht]
+plot(frenchchef,
+     edge.arrow.size=.3,
+     col=colrs,
+     main="Französische Köche")
+```
