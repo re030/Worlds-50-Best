@@ -1,8 +1,8 @@
 id,name,type,worldsfifty,lechef,tripadvisor,thebestchef,restaurant,geschlecht,alter,michelinstern,arbeitsort,herkunftsland,ausbildereins,ausbilderzwei,ausbilderdrei,ausbildervier,ausbilderfuenf,ausbildersechs,ausbildersieben,ausbilderacht
-wfb,Worlds 50 Best,4,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99
-lec,Le Chef,4,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99
-tad,Tripadvisor,4,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99
-tbc,The Best Chef,4,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99
+wfb,Worlds 50 Best,4,99,99,99,99,99,99,99,0,99,99,99,99,99,99,99,99,99,99
+lec,Le Chef,4,99,99,99,99,99,99,99,0,99,99,99,99,99,99,99,99,99,99
+tad,Tripadvisor,4,99,99,99,99,99,99,99,0,99,99,99,99,99,99,99,99,99,99
+tbc,The Best Chef,4,99,99,99,99,99,99,99,0,99,99,99,99,99,99,99,99,99,99
 toba,Tommy Banks,1,99,99,1,99,1,1,1,1,15,19,154,156,99,99,99,99,99,99
 rabl,Raymond Blanc,3,99,99,2,99,1,1,5,2,15,15,0,99,99,99,99,99,99,99
 erpr,Eric Pras,1,99,22,3,99,1,1,3,3,9,15,3,66,15,43,99,99,99,99
