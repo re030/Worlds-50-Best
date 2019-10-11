@@ -1,0 +1,318 @@
+---
+title: "R Notebook"
+output: html_notebook
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r Erstellung Gesamtnetzwerk}
+#Einlesen der Edge und Nodelist
+edges <- read.csv("https://raw.githubusercontent.com/re030/Worlds-50-Best/master/2017_Edgelist_1.3.csv", header=T, as.is=T)
+
+nodes <- read.csv("https://raw.githubusercontent.com/re030/Worlds-50-Best/master/2017_Nodelist_1.2.csv", header=T, as.is=T)
+
+#Erstellung der Matrix
+edgematrix <-as.matrix(edges)
+chef <- graph_from_data_frame(d=edgematrix, vertices=nodes, directed=T)
+chef
+
+#allgemeine Festlegung für das Netzwerk wie Farben, Formen, etc.
+
+
+#geschlecht=1=männlich, geschlecht=2=weiblich, geschlecht=99=Listen
+V(chef)[(V(chef)$geschlecht=="1")]$shape <- "circle"
+V(chef)[(V(chef)$geschlecht=="2")]$shape <- "square"
+V(chef)[(V(chef)$geschlecht=="99")]$shape <- "pie"
+
+
+#Koch=1=hellblau, Ausbilder=2=pink, KochundAusbilder=3=indianred, Liste=4=springgreen
+colrs <- c("lightblue", "pink", "indianred", "springgreen")
+type <- c("1", "2", "3", "4")
+V(chef)$color <- colrs[V(chef)$type]
+
+#Gewicht=2=Beziehung Ausbilder-Koch, Gewicht=1=Beziehung Koch-Liste
+E(chef)[E(chef)$weight == 1]$color <- "black"
+E(chef)[E(chef)$weight == 2]$color <- "grey"
+
+#Plotten des Gesamtnetzwerkes
+coords <- layout_with_kk(chef)*3.5
+plot(chef, vertex.label=V(chef)$name,
+     col=colrs,
+     vertex.label.family="Helvetica",
+     vertex.label.dist=1,
+     vertex.label.color="black",
+     layout=coords,
+     rescale=FALSE,
+     ylim=c(-30.0,30.0),
+     xlim=c(-40.0,30.0),
+     asp=0,
+     vertex.size=70,
+     edge.arrow.size=.1,
+     main="2017 Gesamtnetzwerk der besten Köche weltweit")
+```
+
+```{r weibliche Köche}
+#weibliche Köche herausfiltern
+#erst die ohne Geschlecht löschen
+plot(chef)
+
+vertex.attributes(chef)$geschlecht
+chef
+fchef <- delete_vertices(chef, V(chef)[geschlecht == "1000"])
+plot(fchef)
+#jetzt die Männer herauslöschen
+
+fchefzwei <- delete_vertices(fchef, V(fchef)[(geschlecht) == "1"])
+plot(fchefzwei,
+     col=colrs,
+     vertex.label.family="Helvetica",
+     vertex.label.dist=1,
+     vertex.label.color="black",
+     vertex.size=5,
+     edge.arrow.size=.1,
+     main="2017 Weibliche Köche")
+#Ergebnis:weibliche Köche
+```
+
+```{r}
+#französische Köche herausfinden und mit Farben hinterlegen
+chef
+frenchchef <- delete_vertices(chef, V(chef)[herkunftsland != "15"])
+
+plot(frenchchef,
+     col=colrs,
+     vertex.label.family="Helvetica",
+     vertex.label.dist=1,
+     vertex.label.color="black",
+     vertex.size=5,
+     edge.arrow.size=.3,
+     main="Französische Köche")
+```
+
+```{r}
+
+#Königsmacher herausfinden --> also den Koch mit den meisten outdegrees
+
+chef
+list.vertex.attributes(chef)
+vertex.attributes(chef)$name
+
+chefdegree <- degree(chef)
+chefdegree
+
+chefol <- delete_vertices(chef, V(chef)[type =="4"])
+
+outds <-degree(chef, mode="out")
+outds
+
+```
+
+```{r}
+egoducasse <- make_ego_graph(chef, order=1, c("Alain Ducasse"))
+plot(egoducasse[[1]], 
+     edge.arrow.size=.3,
+     col=colrs,
+     vertex.label.family="Helvetica",
+     vertex.label.dist=1,
+     vertex.label.color="black",
+     vertex.size=5,
+     edge.arrow.size=.3,
+     main="2017 Egonetzwerk Alain Ducasse")
+```
+
+```{r Gesamtnetzwerk ohne Ausbilder und mit degree}
+#aus Gesamtnetzwerk alle rauslöschen die auf keiner Liste sind und degree höchster Wert
+#alle köche die auf einer liste stehen und mehr degrees als 2 haben
+
+plot(chef)
+chefoa <- delete_vertices(chef, V(chef)[worldsfifty == "99" & lechef == "99" & tripadvisor == "99" & thebestchef == "99"])
+plot(chefoa)
+
+#Teilnetzwerk nach vertex attribut erstellen und alle Köche die auf keiner Liste sind löschen
+tnchefoa <- chef - V(chef)[V(chef)$worldsfifty=="99" & lechef=="99" & tripadvisor=="99" & thebestchef=="99"]
+plot(tnchefoa)
+
+tnchefoamddrei <- tnchefoa - E(tnchefoa)[E(tnchefoa)$weight=="2"]
+coords <- layout_with_kk(tnchefoamddrei)*0.6
+
+#köche löschen die nur 1 indegree haben --> hat funktioniert
+tnchefoamddrei
+V(tnchefoamddrei)$degree <- degree(tnchefoamddrei)
+vertex.attributes(tnchefoamddrei)$degree
+tnchefoamddrei_relations <- delete_vertices(tnchefoamddrei, V(tnchefoamddrei)[degree == "1"])
+tnchefoamddrei_relations
+
+plot(tnchefoamddrei_relations, layout=layout_with_kk,
+     edge.arrow.size=.1,
+     vertex.size=degree(tnchefoamddrei, mode="in")*10,
+     main="Darstellung aller Köche die auf den Listen sind",
+     layout=coords,
+     rescale=FALSE,
+     ylim=c(-5,4),
+     xlim=c(-4,6),
+     asp=0)
+
+#Gesamtnetzwerk ohne Ausbilder und mit degree - Welcher Knoten hat den höchsten Indegree-Wert?
+
+tnchefoamddrei_relations_deg <- degree(tnchefoamddrei, mode="in")
+tnchefoamddrei_relations_deg
+
+# Welcher Knoten hat den höchsten Indegree-Wert?
+which.max(degree(tnchefoamddrei_relations_deg))
+
+# Dauerhafte Markierung des Knoten Joan Roca (in diesem Fall wir die Rahmenfarbe rot gesetzt)
+V(tnchefoamddrei_relations)[V(tnchefoamddrei_relations)$name == "Joan Roca"]$frame.color <- "green"
+plot(tnchefoamddrei_relations, 
+     col=colrs,
+     vertex.label.family="Helvetica",
+     vertex.label.dist=1,
+     vertex.label.color="black",
+     vertex.size=5,
+     edge.arrow.size=.1,
+     main="2017 Wer steht auf allen Listen?")
+```
+
+```{r Köche mit 3 Michelinsternen}
+#Netzwerk nach 3 Michelinsternen filtern
+m10 <- delete_vertices(chef, V(chef)[michelinstern == "1000"])
+m10
+vertex.attributes(m10)$michelinstern
+plot(m10)
+
+#alle Köche mit 0 Michelinsternen gelöscht
+m13<- delete_vertices(m10, V(m10)[michelinstern == "0"])
+m13
+vertex.attributes(m13)$michelinstern
+plot(m13)
+
+# alle Köche mit weniger als 3 Sternen gelöscht
+mplus3<- delete_vertices(m13, V(m13)[michelinstern < "3"])
+mplus3
+vertex.attributes(mplus3)$michelinstern
+plot(mplus3,
+     col=colrs,
+     vertex.label.family="Helvetica",
+     vertex.label.dist=1,
+     vertex.label.color="black",
+     vertex.size=5,
+     edge.arrow.size=.1,
+     main="2017 Köche mit 3 Michelin Sternen")
+
+# jetzt haben wir alle 3 Sterne Köche
+```
+
+```{r Köche ausgebildet von Ducasse mit mindestens 2 Sternen}
+#Wie erfolgreich sind die Köche, die von dem Koch mit den meisten Schülern (bekanntester Koch) ausgebildet wurden?
+
+egoducasse <- make_ego_graph(chefol, order=1, c("Alain Ducasse"))
+
+V(chefol)[V(chefol)$michelinstern == 1]$color <- "blue"
+V(chefol)[V(chefol)$michelinstern == 2]$color <- "red"
+V(chefol)[V(chefol)$michelinstern == 3]$color <- "green"
+V(chefol)[V(chefol)$michelinstern == 99]$color <- "grey"
+
+plot(egoducasse[[1]], 
+     col=colrs,
+     vertex.label.family="Helvetica",
+     vertex.label.dist=1,
+     vertex.label.color="black",
+     vertex.size=5,
+     edge.arrow.size=.1,
+     main="2017 Alain Ducasse und seine Schüler mit Michelinsternen",
+     )
+```
+
+```{r Egonetzwerk der Listen}
+#Welcher Koch ist auf den meisten Listen?
+chef
+bestchef <- delete_vertices(chef, V(chef)[worldsfifty == "99" & lechef =="99" & tripadvisor =="99" & thebestchef =="99"])
+plot(bestchef,
+     col=colrs,
+     vertex.label.family="Helvetica",
+     vertex.label.dist=1,
+     vertex.label.color="black",
+     vertex.size=5,
+     edge.arrow.size=.1,
+     main="2017 Egonetzwerk The Best Chef")
+
+#egonetzwerk aus den Listen
+egowfb <- make_ego_graph(chef, order=1, c("Worlds 50 Best"))
+plot(egowfb[[1]], 
+     col=colrs,
+     vertex.label.family="Helvetica",
+     vertex.label.dist=1,
+     vertex.label.color="black",
+     vertex.size=5,
+     edge.arrow.size=.1,
+     main="2017 Egonetzwerk Worlds 50 Best")
+
+#egonetzwerk von lechef
+egolec <- make_ego_graph(chef, order=1, c("Le Chef"))
+plot(egolec[[1]],
+     col=colrs,
+     vertex.label.family="Helvetica",
+     vertex.label.dist=1,
+     vertex.label.color="black",
+     vertex.size=5,
+     edge.arrow.size=.1,
+     main="2017 Egonetzwerk Le Chef")
+
+#egonetzwerk von tripadvisor
+egotad <- make_ego_graph(chef, order=1, c("Tripadvisor"))
+plot(egotad[[1]], 
+     col=colrs,
+     vertex.label.family="Helvetica",
+     vertex.label.dist=1,
+     vertex.label.color="black",
+     vertex.size=5,
+     edge.arrow.size=.1,
+     main="2017 Egonetzwerk Tripadvisor")
+
+#egonetzwerk von thebestchef
+egotbc <- make_ego_graph(chef, order=1, c("The Best Chef"))
+plot(egotbc[[1]], 
+     col=colrs,
+     vertex.label.family="Helvetica",
+     vertex.label.dist=1,
+     vertex.label.color="black",
+     vertex.size=5,
+     edge.arrow.size=.1,
+     main="2017 Egonetzwerk The Best Chef")
+```
+
+```{r Deutsche Köche}
+#Deutsche Köche herausfiltern und nach type sortieren
+germanchef <- delete_vertices(chef, V(chef)[herkunftsland !="1"])
+plot(germanchef,
+     main="Deutsche Köche")
+
+vertex.attributes(chef)$type
+
+#Gesamtnetzwerk nach type sortieren
+plot(germanchef,
+     col=colrs,
+     vertex.label.family="Helvetica",
+     vertex.label.dist=1,
+     vertex.label.color="black",
+     vertex.size=5,
+     edge.arrow.size=.1,
+     main="2017 Deutsche Köche")
+```
+
+```{r Köche mit 0 Michelinsternen}
+#Welche Köche haben keinen Michelinstern und sind auf einer Liste?
+
+chef
+m0 <- delete_vertices(chef, V(chef)[michelinstern != "0"])
+m0
+vertex.attributes(m0)$michelinstern
+plot(m0,
+     main="2017 Köche ohne Michelinsterne",
+     col=colrs,
+     vertex.label.family="Helvetica",
+     vertex.label.dist=1,
+     vertex.label.color="black",
+     vertex.size=5,
+     edge.arrow.size=.1)
+```
+
